@@ -4,15 +4,20 @@
 
 #include <stdio.h>
 
-int main(int argc, char *argv[]){
-
-    /**Instance of Vulkan class
-     * In vulkan_class.cpp you will find the method initInstance()
-     * which is the first step to learn vulkan
-    */
-
-    VulkanClass v = VulkanClass();
-    
-
-    return 0;
+#if defined(__linux__)
+int main(int argc, char *argv[]) {
+  VulkanClass ve = VulkanClass();
+  ve.createWindow();
+  ve.initSwapchain();
+  ve.renderLoop();
 }
+
+#elif defined(_WIN32)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                   LPSTR lpCmdLine, int nCmdShow) {
+  VulkanClass ve = VulkanClass();
+  ve.createWindow(hInstance);
+  ve.initSwapchain();
+  ve.renderLoop();
+}
+#endif
