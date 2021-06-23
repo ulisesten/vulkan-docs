@@ -6,7 +6,11 @@
 
 int main(int argc, char *argv[]){
 
-    //printf("In function %s: %s\n", __func__, "Hello Vulkan");
+    /**Instance of Vulkan class
+     * In vulkan_class.cpp you will find the method initInstance()
+     * which is the first step to learn vulkan
+    */
+
     VulkanClass v = VulkanClass();
     
 

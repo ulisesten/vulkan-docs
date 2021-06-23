@@ -11,3 +11,9 @@ Vulkan documentation
 ## Running
 
     ./build/vulkan
+
+## Where to start
+
+follow the comments
+
+    src/main.cpp

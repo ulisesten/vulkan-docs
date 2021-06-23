@@ -1,9 +1,11 @@
 #include "vulkan_class.hpp"
 #include "vulkan_tools.hpp"
 
-#include <vulkan/vulkan.h>
 
-VulkanClass::VulkanClass() { initInstance(); }
+VulkanClass::VulkanClass() {
+    initInstance();
+    initDevices();
+}
     
 VulkanClass::~VulkanClass() { vkDestroyInstance(instance, NULL); }
 
@@ -46,5 +48,59 @@ void VulkanClass::initInstance() {
         "The call to vkCreateInstance failed. Please make sure "
         "you have a Vulkan installable client driver (ICD) before "
         "continuing.");
+  }
+}
+
+void VulkanClass::initDevices(){
+  uint32_t deviceCount = 0;
+  VkResult result = vkEnumeratePhysicalDevices(instance, &deviceCount, NULL);
+
+  assert(result == VK_SUCCESS);
+  assert(deviceCount >= 1);
+
+  std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
+  result = vkEnumeratePhysicalDevices(instance, &deviceCount,
+                                      physicalDevices.data());
+
+  assert(result == VK_SUCCESS);
+
+  physicalDevice = physicalDevices[0];
+
+  float priorities[] = {1.0f};
+  VkDeviceQueueCreateInfo queueInfo{};
+  queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueInfo.pNext = NULL;
+  queueInfo.flags = 0;
+  queueInfo.queueFamilyIndex = 0;
+  queueInfo.queueCount = 1;
+  queueInfo.pQueuePriorities = &priorities[0];
+
+  std::vector<const char *> enabledExtensions = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+  VkDeviceCreateInfo deviceInfo{};
+  deviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  deviceInfo.pNext = NULL;
+  deviceInfo.flags = 0;
+  deviceInfo.queueCreateInfoCount = 1;
+  deviceInfo.pQueueCreateInfos = &queueInfo;
+  deviceInfo.enabledExtensionCount = enabledExtensions.size();
+  deviceInfo.ppEnabledExtensionNames = enabledExtensions.data();
+  deviceInfo.pEnabledFeatures = NULL;
+
+  result = vkCreateDevice(physicalDevice, &deviceInfo, NULL, &device);
+
+  assert(result == VK_SUCCESS);
+
+  VkPhysicalDeviceProperties physicalProperties = {};
+
+  for (uint32_t i = 0; i < deviceCount; i++) {
+    vkGetPhysicalDeviceProperties(physicalDevices[i], &physicalProperties);
+    fprintf(stdout, "Device Name:    %s\n", physicalProperties.deviceName);
+    fprintf(stdout, "Device Type:    %d\n", physicalProperties.deviceType);
+    fprintf(stdout, "Driver Version: %d\n", physicalProperties.driverVersion);
+    fprintf(stdout, "API Version:    %d.%d.%d\n",
+            VK_VERSION_MAJOR(physicalProperties.apiVersion),
+            VK_VERSION_MINOR(physicalProperties.apiVersion),
+            VK_VERSION_PATCH(physicalProperties.apiVersion));
   }
 }

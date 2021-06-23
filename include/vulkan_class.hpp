@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <cassert>
 
 
 #if defined(__linux__)
@@ -20,7 +21,13 @@
 class VulkanClass {
     private :
         void initInstance();
+        void initDevices();
+
+
         VkInstance instance;
+        VkPhysicalDevice physicalDevice;
+        VkDevice device;
+
     public :
         VulkanClass();
         virtual ~VulkanClass();
